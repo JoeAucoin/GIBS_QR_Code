@@ -1,8 +1,8 @@
 <dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="GIBS_QR_Code" type="Module" version="00.00.01">
+    <package name="GIBS_QR_Code" type="Module" version="00.00.02">
       <friendlyName>GIBS_QR_Code</friendlyName>
-      <description>GIBS.com GIBS_QR_Code module</description>
+      <description>GIBS.com GIBS QR Code Maker Module</description>
       <iconFile>~/Images/icon_extensions_32px.png</iconFile>
       <owner>
         <name>GIBS.com</name>
@@ -29,7 +29,7 @@
             <script type="UnInstall">
               <path>Providers\DataProviders\SqlDataProvider</path>
               <name>Uninstall.SqlDataProvider</name>
-              <version>00.00.01</version>
+              <version>00.00.02</version>
             </script>
           </scripts>
         </component>

@@ -24,6 +24,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         protected global::System.Web.UI.WebControls.DropDownList ddlQRType;
 
         /// <summary>
+        /// LinkButtonLoadProfile control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton LinkButtonLoadProfile;
+
+        /// <summary>
         /// PanelVCard control.
         /// </summary>
         /// <remarks>

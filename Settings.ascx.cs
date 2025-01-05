@@ -10,9 +10,12 @@
 ' 
 */
 
-using DotNetNuke.Entities.Modules;
-using DotNetNuke.Services.Exceptions;
 using System;
+using System.Web.UI.WebControls;
+using DotNetNuke.Services.Exceptions;
+using GIBS.Modules.GIBS_QR_Code.Components;
+using DotNetNuke.Services.Localization;
+using DotNetNuke.UI.Utilities;
 
 namespace GIBS.Modules.GIBS_QR_Code
 {
@@ -53,15 +56,9 @@ namespace GIBS.Modules.GIBS_QR_Code
                 {
                     //Check for existing settings and use those on this page
                     //Settings["SettingName"]
-
-                    /* uncomment to load saved settings in the text boxes
-                    if(Settings.Contains("Setting1"))
-                        txtSetting1.Text = Settings["Setting1"].ToString();
-			
-                    if (Settings.Contains("Setting2"))
-                        txtSetting2.Text = Settings["Setting2"].ToString();
-
-                    */
+                    txtPageSize.Text = PageSize.ToString();
+                    chkShowLoadProfile.Checked = ShowLoadProfile;
+                    chkSaveQRCodeImage.Checked = SaveQRCodeImage;
 
                 }
             }
@@ -80,16 +77,9 @@ namespace GIBS.Modules.GIBS_QR_Code
         {
             try
             {
-                var modules = new ModuleController();
-
-                //the following are two sample Module Settings, using the text boxes that are commented out in the ASCX file.
-                //module settings
-                //modules.UpdateModuleSetting(ModuleId, "Setting1", txtSetting1.Text);
-                //modules.UpdateModuleSetting(ModuleId, "Setting2", txtSetting2.Text);
-
-                //tab module settings
-                //modules.UpdateTabModuleSetting(TabModuleId, "Setting1",  txtSetting1.Text);
-                //modules.UpdateTabModuleSetting(TabModuleId, "Setting2",  txtSetting2.Text);
+                PageSize = Convert.ToInt32(txtPageSize.Text);
+                ShowLoadProfile = Convert.ToBoolean(chkShowLoadProfile.Checked);
+                SaveQRCodeImage =  Convert.ToBoolean(chkSaveQRCodeImage.Checked);
             }
             catch (Exception exc) //Module failed to load
             {

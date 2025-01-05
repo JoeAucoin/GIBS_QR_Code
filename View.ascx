@@ -4,8 +4,7 @@
 
 
 <script type="text/javascript">
-    function clearTextBox() {
-       // alert("here");
+    function clearTextBox() { 
         document.getElementById('<%= TextBoxEMAIL.ClientID %>').value = "";
         document.getElementById('<%= TextBoxURL.ClientID %>').value = "";
         document.getElementById('<%= TextBoxTEXT.ClientID %>').value = "";
@@ -16,11 +15,9 @@
         hideURL.style.display = "none";
         hideEMAIL.style.display = "none";
         hideTEXT.style.display = "block";
-      //  alert("here2");
     }
 
     function clearURL() {
-        // alert("here");
         document.getElementById('<%= TextBoxEMAIL.ClientID %>').value = "";
         document.getElementById('<%= TextBoxURL.ClientID %>').value = "";
         document.getElementById('<%= TextBoxTEXT.ClientID %>').value = "";
@@ -30,33 +27,37 @@
         const hideEMAIL = document.getElementById("divemail");
         hideURL.style.display = "block";
         hideEMAIL.style.display = "none";
-        hideTEXT.style.display = "none";
-        //  alert("here2");
+        hideTEXT.style.display = "none"; 
     }
     function clearEMAIL() {
-        // alert("here");
         document.getElementById('<%= TextBoxEMAIL.ClientID %>').value = "";
             document.getElementById('<%= TextBoxURL.ClientID %>').value = "";
             document.getElementById('<%= TextBoxTEXT.ClientID %>').value = "";
-            // Get the div element by its ID
+            // Get the divs
             const hideURL = document.getElementById("divurl");
             const hideTEXT = document.getElementById("divtext");
             const hideEMAIL = document.getElementById("divemail");
             hideURL.style.display = "none";
             hideEMAIL.style.display = "block";
-            hideTEXT.style.display = "none";
-            //  alert("here2");
+            hideTEXT.style.display = "none";    
         }
 </script>
 
 <div>
-    <asp:DropDownList ID="ddlQRType" runat="server" OnSelectedIndexChanged="ddlQRType_SelectedIndexChanged" AutoPostBack="true">
+    <asp:DropDownList ID="ddlQRType" runat="server" OnSelectedIndexChanged="ddlQRType_SelectedIndexChanged" AutoPostBack="true" Width="200px">
         <asp:ListItem Text="VCard" Value="VCard" Selected="True"></asp:ListItem>
         <asp:ListItem Text="Other" Value="Other"></asp:ListItem>
     </asp:DropDownList>
+
+
 </div>
 
+<div class="text-right">
+<asp:LinkButton ID="LinkButtonLoadProfile" runat="server" OnClick="LinkButtonLoadProfile_Click" Visible="false" CssClass="btn btn-default btn-lg">Load Your Profile</asp:LinkButton></div>
+
 <asp:Panel ID="PanelVCard" runat="server">
+
+    <h3>Create a QR Code vCard</h3>
 
     <div class="dnnForm">
         <fieldset>
@@ -116,17 +117,21 @@
 
 </asp:Panel>
 
+
+
+
+
 <asp:Panel ID="PanelOther" runat="server" Visible="false">
 
-<ul class="nav justify-content-center">
-  <li class="nav-item">
-    <a class="nav-link" aria-current="page" href="#" onclick="javascript:clearURL();">URL</a>
+<ul class="othernav justify-content-center">
+  <li class="othernavli">
+    <a aria-current="page" href="#" onclick="javascript:clearURL();">URL</a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="#" onclick="javascript:clearTextBox();">Text</a>
+  <li class="othernavli">
+    <a href="#" onclick="javascript:clearTextBox();">Text</a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="#" onclick="javascript:clearEMAIL();">Email</a>
+  <li class="othernavli">
+    <a href="#" onclick="javascript:clearEMAIL();">Email</a>
   </li>
 
 </ul>
@@ -155,7 +160,7 @@
 
 <div class="nav justify-content-center"><asp:LinkButton ID="LinkButtonSUBMIT" runat="server" OnClick="LinkButtonSUBMIT_Click" CssClass="btn btn-lg btn-default">Create QR Code</asp:LinkButton></div>
 
-<asp:Label ID="LabelEncodedString" runat="server" Text="" Visible="false"></asp:Label>
+<asp:Label ID="LabelEncodedString" runat="server" Text="" Visible="true"></asp:Label>
 <br />
 <asp:Image ID="Image1" runat="server" Visible="false" Width="300px" />
 

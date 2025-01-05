@@ -11,10 +11,65 @@
 */
 
 using DotNetNuke.Entities.Modules;
+using System;
 
 namespace GIBS.Modules.GIBS_QR_Code
 {
     public class GIBS_QR_CodeModuleSettingsBase : ModuleSettingsBase
     {
+        public int PageSize
+        {
+            get
+            {
+                if (Settings.Contains("PageSize"))
+                    return Convert.ToInt32(Settings["PageSize"]);
+                return 10;
+            }
+            set
+            {
+                var mc = new ModuleController();
+                mc.UpdateModuleSetting(ModuleId, "PageSize", value.ToString());
+            }
+        }
+
+        public bool ShowLoadProfile
+        {
+            get
+            {
+                if (Settings.Contains("ShowLoadProfile"))
+                {
+                    return Convert.ToBoolean(Settings["ShowLoadProfile"]);
+                }
+                return true;
+            }
+
+            set
+            {
+                var mc = new ModuleController();
+                mc.UpdateModuleSetting(ModuleId, "ShowLoadProfile", value.ToString());
+            }
+
+        }
+        //SaveQRCodeImage
+        public bool SaveQRCodeImage
+        {
+            get
+            {
+                if (Settings.Contains("SaveQRCodeImage"))
+                {
+                    return Convert.ToBoolean(Settings["SaveQRCodeImage"]);
+                }
+                return true;
+            }
+
+            set
+            {
+                var mc = new ModuleController();
+                mc.UpdateModuleSetting(ModuleId, "SaveQRCodeImage", value.ToString());
+            }
+
+        }
+
+
     }
 }
