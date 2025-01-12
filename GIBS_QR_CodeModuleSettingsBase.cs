@@ -32,6 +32,25 @@ namespace GIBS.Modules.GIBS_QR_Code
             }
         }
 
+        public string GoogleAPIKey
+        {
+            get
+            {
+                if (Settings.Contains("GoogleAPIKey"))
+                {
+                    return Settings["GoogleAPIKey"].ToString();
+                }
+                return "";
+            }
+
+            set
+            {
+                var mc = new ModuleController();
+                mc.UpdateModuleSetting(ModuleId, "GoogleAPIKey", value.ToString());
+            }
+
+        }
+
         public bool ShowLoadProfile
         {
             get

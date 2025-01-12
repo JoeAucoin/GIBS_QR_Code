@@ -26,6 +26,16 @@ using DotNetNuke.Entities.Profile;
 using DotNetNuke.Entities.Users;
 using System.Windows.Shapes;
 using System.Collections;
+using System.Web.UI.WebControls;
+using System.Web;
+using DotNetNuke.Common.Utilities;
+using DotNetNuke.Security.Permissions;
+using DotNetNuke.Security.Roles;
+using DotNetNuke.Services.FileSystem;
+using DotNetNuke.Entities.Portals;
+using DotNetNuke.Services.Installer.Log;
+using DotNetNuke.Services.Scheduling;
+using DotNetNuke.Framework.JavaScriptLibraries;
 
 
 
@@ -46,18 +56,49 @@ namespace GIBS.Modules.GIBS_QR_Code
     /// -----------------------------------------------------------------------------
     public partial class View : GIBS_QR_CodeModuleSettingsBase, IActionable
     {
+
+        static string _GoogleAPIKey;
+        static string _QRCodeFilename = "";
+
+
+        protected override void OnInit(EventArgs e)
+        {
+            base.OnInit(e);
+
+            //JavaScript.RequestRegistration(CommonJs.jQuery);
+            //JavaScript.RequestRegistration(CommonJs.jQueryUI);
+            //JavaScript.RequestRegistration(CommonJs.DnnPlugins);
+
+     //      Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "GoogleMaps", (this.TemplateSourceDirectory + "/JavaScript/GooglePlaces.js?1=10"));
+            //Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "Watermark", (this.TemplateSourceDirectory + "/JavaScript/jquery.watermarkinput.js"));
+            //Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "SigWeb", (this.TemplateSourceDirectory + "/JavaScript/SigWebTablet.js"));
+            //Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "Dymo", (this.TemplateSourceDirectory + "/JavaScript/dymo.connect.framework.js?1=1"));
+            //Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "PrintLabel", (this.TemplateSourceDirectory + "/JavaScript/PrintLabel.js?1=9"));
+            //   Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "Style", ("https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/redmond/jquery-ui.css"));
+
+        }
+
+
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
                 if (!IsPostBack)
                 {
-                    if (this.UserId > 0)
+                    //LabelEncodedString.Text = rblGoogleCodeType.SelectedItem.ToString();
+
+
+                    bool DoesFolderExists = System.IO.Directory.Exists(PortalSettings.HomeDirectoryMapPath + "QRCode");
+
+                    if (!DoesFolderExists)
                     {
-                        LinkButtonLoadProfile.Visible = true;
-                        
+                        CreateFolder("QRCode");
                     }
+                        
                     
+                    SetPanel("GoogleReview");
+                    ddlQRType.SelectedValue = "GoogleReview";
+
 
                 }
             }
@@ -100,6 +141,67 @@ namespace GIBS.Modules.GIBS_QR_Code
             }
         }
 
+        public void CreateFolder(string myfolderName)
+        {
+            try
+            {
+
+                string subPath = myfolderName; // Your code goes here
+
+                bool exists = System.IO.Directory.Exists(PortalSettings.HomeDirectoryMapPath + subPath);
+
+                if (!exists)
+                    System.IO.Directory.CreateDirectory(PortalSettings.HomeDirectoryMapPath + subPath);
+
+                SynchronizeFiles();
+
+            }
+            catch (Exception ex)
+            {
+                Exceptions.ProcessModuleLoadException(this, ex);
+            }
+        }
+
+
+        private void SynchronizeFiles()
+        {
+            var ctlPortal = new PortalController();
+            var portals = ctlPortal.GetPortals();
+
+            foreach (PortalInfo portal in portals)
+            {
+                SyncForPortal(this.PortalId);
+            }
+        }
+
+        private void SyncForPortal(int portalId)
+        {
+            try
+            {
+                FolderManager.Instance.Synchronize(portalId);
+            }
+            catch (Exception exc) //Module failed to load
+            {
+                Exceptions.ProcessModuleLoadException(this, exc);
+            }
+        }
+
+        protected void cmdDownLoad_Click(object sender, EventArgs e)
+        {
+            // Button myBut = sender as Button;
+            //  GridViewRow gRow = myBut.NamingContainer as GridViewRow;
+
+            string strFileOnly = _QRCodeFilename.ToString();
+            string strFile = Server.MapPath(@"~/Portals/" + this.PortalId + "/QRCode/" + strFileOnly.ToString());
+          //  strFile = Server.MapPath(@"~/UpLoadFiles/" + strFileOnly);
+
+            string sMineType = MimeMapping.GetMimeMapping(strFileOnly);
+            Response.ContentType = sMineType;
+            Response.AppendHeader("Content-Disposition", "attachment; filename=" + strFileOnly);
+            Response.TransmitFile(strFile);
+            Response.End();
+        }
+
         public ModuleActionCollection ModuleActions
         {
             get
@@ -123,6 +225,36 @@ namespace GIBS.Modules.GIBS_QR_Code
                 if (ddlQRType.SelectedValue == "Other")
                 {
                     SaveOther();
+                    //if (TextBoxURL.Text.Length > 0) 
+                    //{ 
+                    
+                    //}
+                    //else
+                    //{
+                        
+                    //}
+                    
+                }
+                else if (ddlQRType.SelectedValue == "vEvent")
+                {
+                   
+                    SaveVEvent();
+                }
+                else if (ddlQRType.SelectedValue == "Email")
+                {
+
+                    SaveEmail();
+                }
+                else if (ddlQRType.SelectedValue == "WiFi")
+                {
+
+                    SaveWiFi();
+                }
+
+                else if (ddlQRType.SelectedValue == "GoogleReview")
+                {
+
+                    SaveGoogleReview();
                 }
                 else
                 {
@@ -137,7 +269,7 @@ namespace GIBS.Modules.GIBS_QR_Code
 
         }
 
-        // VGV4dEJveFRFWFQuVGV4dC5Ub1N0cmluZygp
+        
         public static (string HouseNumber, string StreetName) SplitAddress(string address)
         {
             if (string.IsNullOrEmpty(address))
@@ -159,6 +291,153 @@ namespace GIBS.Modules.GIBS_QR_Code
             }
         }
 
+
+        public void SaveWiFi()
+        {
+            try
+            {
+                
+                WiFi generator = new WiFi(txtWiFiSSID.Text.ToString(), txtWiFiPassword.Text.ToString(),
+                    WiFi.Authentication.WPA,false,false);
+
+                string payload = generator.ToString();
+
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+                QRCode qrCode = new QRCode(qrCodeData);
+
+                Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "WiFi_" + txtWiFiSSID.Text.ToString().Replace(" ", "") + ".png";
+                _QRCodeFilename = "WiFi_" + txtWiFiSSID.Text.ToString().Replace(" ", "") + ".png";
+
+
+                using (Bitmap bitMap = qrCode.GetGraphic(20))
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        Image1.Visible = true;
+                        cmdDownLoad.Visible = true;
+                        bitMap.Save(ms, ImageFormat.Png);
+                        //bitMap.Save(s, ImageFormat.Png);
+                        byte[] byteImage = ms.ToArray();
+                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+
+                        if (SaveQRCodeImage == true)
+                        {
+
+                            if (File.Exists(_QRCodeImage))
+                            {
+                                File.Delete(_QRCodeImage);
+                            }
+
+                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
+
+                            ms.WriteTo(file);
+                            //img.Dispose();
+
+                            file.Close();
+                            file.Dispose();
+                        }
+                        ms.Close();
+                        ms.Dispose();
+
+                    }
+
+
+
+                }
+
+                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
+                LabelEncodedString.Text = payload.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                Exceptions.ProcessModuleLoadException(this, ex);
+            }
+        }
+
+        public void SaveGoogleReview()
+        {
+            try
+            {
+                string googleReviewAddress = "";
+
+                if(rblGoogleCodeType.SelectedValue.ToString() == "Review")
+                {
+                    googleReviewAddress = "https://search.google.com/local/writereview?placeid=" + txtGRPlaceID.Text.ToString().Trim();
+                }
+                else
+                {
+                    googleReviewAddress = "https://www.google.com/maps/search/?api=1&query=Google&query_place_id=" + txtGRPlaceID.Text.ToString().Trim();
+                }
+                Url generator = new Url(googleReviewAddress);
+
+                string payload = generator.ToString();
+                payload = payload.Replace("ADR;TYPE=HOME", "ADR;TYPE=WORK");
+                //  payload = payload.Replace("TEL;TYPE=HOME", "TEL;TYPE=WORK");
+                //  payload = payload.Replace("EMAIL:", "EMAIL;TYPE=INTERNET;TYPE=WORK:");
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+                QRCode qrCode = new QRCode(qrCodeData);
+
+                Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "GoogleReview_" + txtGRPlaceID.Text.Substring(0, 10) + ".png";
+
+                // used for download link
+                _QRCodeFilename = "GoogleReview_" + txtGRPlaceID.Text.Substring(0, 10) + ".png";
+
+
+
+                using (Bitmap bitMap = qrCode.GetGraphic(20))
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        Image1.Visible = true;
+                        cmdDownLoad.Visible = true;
+                        bitMap.Save(ms, ImageFormat.Png);
+                        //bitMap.Save(s, ImageFormat.Png);
+                        byte[] byteImage = ms.ToArray();
+                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+
+                        if (SaveQRCodeImage == true)
+                        {
+
+                            if (File.Exists(_QRCodeImage))
+                            {
+                                File.Delete(_QRCodeImage);
+                            }
+
+                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
+
+                            ms.WriteTo(file);
+                            //img.Dispose();
+
+                            file.Close();
+                            file.Dispose();
+                        }
+                        ms.Close();
+                        ms.Dispose();
+
+                    }
+
+
+
+                }
+
+                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
+                LabelEncodedString.Text = payload.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                Exceptions.ProcessModuleLoadException(this, ex);
+            }
+        }
 
         public void SaveVCard()
         {
@@ -184,9 +463,10 @@ namespace GIBS.Modules.GIBS_QR_Code
 
                 Bitmap qrCodeImage = qrCode.GetGraphic(20);
                 
-                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + txtLastName.Text.ToString().Replace(" ", "") + "_" + txtFirstName.Text.ToString().Replace(" ", "") + ".png";
+                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\vCard_" + txtLastName.Text.ToString().Replace(" ", "") + "_" + txtFirstName.Text.ToString().Replace(" ", "") + ".png";
 
-              
+                // used for download link
+                _QRCodeFilename = "vCard_" + txtLastName.Text.ToString().Replace(" ", "") + "_" + txtFirstName.Text.ToString().Replace(" ", "") + ".png"; ;
 
 
                 using (Bitmap bitMap = qrCode.GetGraphic(20))
@@ -194,6 +474,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                     using (MemoryStream ms = new MemoryStream())
                     {
                         Image1.Visible = true;
+                        cmdDownLoad.Visible = true;
                         bitMap.Save(ms, ImageFormat.Png);
                         //bitMap.Save(s, ImageFormat.Png);
                         byte[] byteImage = ms.ToArray();
@@ -234,6 +515,146 @@ namespace GIBS.Modules.GIBS_QR_Code
             }
         }
 
+        public void SaveEmail()
+        {
+            try
+            {
+               
+                Mail generator = new Mail(txtEmailAddress.Text.ToString(), txtEmailSubject.Text.ToString(),
+                    txtEmailMessage.Text.ToString());
+
+                string payload = generator.ToString();
+
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+                QRCode qrCode = new QRCode(qrCodeData);
+
+                Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Email_" + txtEmailAddress.Text.ToString().Replace("@", "_AT_") + ".png";
+                _QRCodeFilename = "Email_" + txtEventName.Text.ToString().Replace("@", "_AT_") + ".png";
+
+
+                using (Bitmap bitMap = qrCode.GetGraphic(20))
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        Image1.Visible = true;
+                        cmdDownLoad.Visible = true;
+                        bitMap.Save(ms, ImageFormat.Png);
+                        //bitMap.Save(s, ImageFormat.Png);
+                        byte[] byteImage = ms.ToArray();
+                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+
+                        if (SaveQRCodeImage == true)
+                        {
+
+                            if (File.Exists(_QRCodeImage))
+                            {
+                                File.Delete(_QRCodeImage);
+                            }
+
+                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
+
+                            ms.WriteTo(file);
+                            //img.Dispose();
+
+                            file.Close();
+                            file.Dispose();
+                        }
+                        ms.Close();
+                        ms.Dispose();
+
+                    }
+
+
+
+                }
+
+                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
+                LabelEncodedString.Text = payload.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                Exceptions.ProcessModuleLoadException(this, ex);
+            }
+        }
+
+
+        public void SaveVEvent()
+        {
+            try
+            {
+                DateTime starttime = DateTime.Parse(txtEventStartDate.Text.ToString());
+                DateTime endtime = DateTime.Parse(txtEventEndDate.Text.ToString());
+                bool alldayEvent = Convert.ToBoolean(CheckBoxAllDayEvent.Checked);
+               // string location = txtLatitude.Text.ToString() + "," + txtLongitude.Text.ToString();
+                //  location = "400 East Restaurant, Harwich, MA";
+                string location =txtEventLocation.Text.ToString();
+
+                CalendarEvent generator = new CalendarEvent(txtEventName.Text.ToString(), txtEventDesc.Text.ToString(), 
+                    location, starttime, endtime, alldayEvent,CalendarEvent.EventEncoding.Universal);
+
+                string payload = generator.ToString();
+               
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+                QRCode qrCode = new QRCode(qrCodeData);
+
+                Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Event_" + txtEventName.Text.ToString().Replace(" ", "") + ".png";
+                _QRCodeFilename = "Event_" + txtEventName.Text.ToString().Replace(" ", "") +  ".png";
+
+
+                using (Bitmap bitMap = qrCode.GetGraphic(20))
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        Image1.Visible = true;
+                        cmdDownLoad.Visible = true;
+                        bitMap.Save(ms, ImageFormat.Png);
+                        //bitMap.Save(s, ImageFormat.Png);
+                        byte[] byteImage = ms.ToArray();
+                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+
+                        if (SaveQRCodeImage == true)
+                        {
+
+                            if (File.Exists(_QRCodeImage))
+                            {
+                                File.Delete(_QRCodeImage);
+                            }
+
+                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
+
+                            ms.WriteTo(file);
+                            //img.Dispose();
+
+                            file.Close();
+                            file.Dispose();
+                        }
+                        ms.Close();
+                        ms.Dispose();
+
+                    }
+
+
+
+                }
+
+                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
+                LabelEncodedString.Text = payload.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                Exceptions.ProcessModuleLoadException(this, ex);
+            }
+        }
 
 
         public void SaveOther()
@@ -248,28 +669,56 @@ namespace GIBS.Modules.GIBS_QR_Code
                 }
 
 
+
                 QRCodeGenerator qrGenerator = new QRCodeGenerator();
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(TextBoxURL.Text.ToString()+ email.ToString() + TextBoxTEXT.Text.ToString(), QRCodeGenerator.ECCLevel.Q);
-                
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(TextBoxURL.Text.ToString() + email.ToString() + TextBoxTEXT.Text.ToString(), QRCodeGenerator.ECCLevel.Q);
+
                 QRCode qrCode = new QRCode(qrCodeData);
 
                 Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+                string format1 = "Mddyyyyhhmmsstt";
+                var myTimeStamp = String.Format("{0}", DateTime.Now.ToString(format1));
+
+                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Other_" + myTimeStamp.ToString() + ".png";
+                _QRCodeFilename = "Other_" + myTimeStamp.ToString() + ".png";
+
 
                 using (Bitmap bitMap = qrCode.GetGraphic(20))
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
                         Image1.Visible = true;
+                        cmdDownLoad.Visible = true;
                         bitMap.Save(ms, ImageFormat.Png);
                         byte[] byteImage = ms.ToArray();
                         Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+
+                        if (SaveQRCodeImage == true)
+                        {
+
+                            if (File.Exists(_QRCodeImage))
+                            {
+                                File.Delete(_QRCodeImage);
+                            }
+
+                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
+
+                            ms.WriteTo(file);
+                            //img.Dispose();
+
+                            file.Close();
+                            file.Dispose();
+                        }
+                        ms.Close();
+                        ms.Dispose();
 
                     }
                 }
 
                 string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
-               
-                LabelEncodedString.Text = TextBoxTEXT.Text.Replace(Environment.NewLine, "<br />").ToString();
+
+                LabelEncodedString.Text = TextBoxURL.Text.ToString() + email.ToString() + TextBoxTEXT.Text.Replace(Environment.NewLine, "<br />").ToString();
 
 
 
@@ -279,6 +728,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                 Exceptions.ProcessModuleLoadException(this, ex);
             }
         }
+
 
         public static string Base64Encode(string plainText)
         {
@@ -304,29 +754,138 @@ namespace GIBS.Modules.GIBS_QR_Code
             return UserDisplayName;
         }
 
-        private string GeUserProfileString(string CustomProperty, int UserID)
+        private string GetUserProfileString(string CustomProperty, int UserID)
         {
             UserInfo oUserInfo = UserController.GetUserById(PortalSettings.PortalId, UserID);
             string sCustomProperty = oUserInfo.Profile.GetPropertyValue(CustomProperty);
             return sCustomProperty;
         }
 
+        protected string GetMapUrl()
+        {
+            //  return ;
 
+            return "https://maps.googleapis.com/maps/api/js?key=" + _GoogleAPIKey.ToString() + "&libraries=places&v=weekly";
+        }
 
-
+        
         protected void ddlQRType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(ddlQRType.SelectedValue == "Other")
-            { 
-                PanelOther.Visible = true;
-                PanelVCard.Visible = false;
-            }
-            else
+            SetPanel(ddlQRType.SelectedValue.ToString());
+            
+        }
+
+        public void SetPanel(string whatPanel)
+        {
+            try
             {
-                PanelOther.Visible = false;
-                PanelVCard.Visible = true;
+                string myPanel = whatPanel.ToLower();
+
+                switch (myPanel)
+                {
+                    case "vcard":
+                        
+                        PanelOther.Visible = false;
+                        PanelVCard.Visible = true;
+                        PanelvEvent.Visible = false;
+                        PanelEmail.Visible = false;
+                        PanelGoogleReview.Visible = false;
+                        PanelWiFi.Visible = false;
+                        TextBoxURL.Text = string.Empty;
+                        TextBoxTEXT.Text = string.Empty;
+                        TextBoxEMAIL.Text = string.Empty;
+
+                        if (System.Web.HttpContext.Current.User.Identity.IsAuthenticated)
+                        {
+                            LinkButtonLoadProfile.Visible = true;
+                        }
+
+                        break;
+
+                    case "email":
+                        LinkButtonLoadProfile.Visible = false;
+                        PanelvEvent.Visible = false;
+                        PanelOther.Visible = false;
+                        PanelVCard.Visible = false;
+                        PanelEmail.Visible = true;
+                        PanelGoogleReview.Visible = false;
+                        PanelWiFi.Visible = false;
+                        TextBoxURL.Text = string.Empty;
+                        TextBoxTEXT.Text = string.Empty;
+                        TextBoxEMAIL.Text = string.Empty;
+
+                        break;
+
+                    case "wifi":
+                        LinkButtonLoadProfile.Visible = false;
+                        PanelWiFi.Visible = true;
+                        PanelvEvent.Visible = false;
+                        PanelOther.Visible = false;
+                        PanelVCard.Visible = false;
+                        PanelEmail.Visible = false;
+                        PanelGoogleReview.Visible = false;
+
+                        TextBoxURL.Text = string.Empty;
+                        TextBoxTEXT.Text = string.Empty;
+                        TextBoxEMAIL.Text = string.Empty;
+
+                        break;
+
+                    case "googlereview":
+                        LinkButtonLoadProfile.Visible = false;
+                        PanelGoogleReview.Visible = true;
+                        PanelvEvent.Visible = false;
+                        PanelOther.Visible = false;
+                        PanelVCard.Visible = false;
+                        PanelEmail.Visible = false;
+                        PanelWiFi.Visible = false;
+                        TextBoxURL.Text = string.Empty;
+                        TextBoxTEXT.Text = string.Empty;
+                        TextBoxEMAIL.Text = string.Empty;
+
+                        break;
+
+                    case "vevent":
+                        LinkButtonLoadProfile.Visible = false;
+                        PanelvEvent.Visible = true;
+                        PanelOther.Visible = false;
+                        PanelVCard.Visible = false;
+                        PanelEmail.Visible = false;
+                        PanelGoogleReview.Visible = false;
+                        PanelWiFi.Visible = false;
+                        TextBoxURL.Text = string.Empty;
+                        TextBoxTEXT.Text = string.Empty;
+                        TextBoxEMAIL.Text = string.Empty;
+
+                        break;
+
+                    case "other":
+                        LinkButtonLoadProfile.Visible = false;
+                        PanelOther.Visible = true;
+                        PanelVCard.Visible = false;
+                        PanelvEvent.Visible = false;
+                        PanelGoogleReview.Visible = false;
+                        PanelEmail.Visible = false;
+                        PanelWiFi.Visible = false;
+                        TextBoxURL.Text = string.Empty;
+                        TextBoxTEXT.Text = string.Empty;
+                        TextBoxEMAIL.Text = string.Empty;
+
+                        break;
+
+                    default:
+
+
+                        break;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Exceptions.ProcessModuleLoadException(this, ex);
             }
         }
+
 
         protected void LinkButtonLoadProfile_Click(object sender, EventArgs e)
         {

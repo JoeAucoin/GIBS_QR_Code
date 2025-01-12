@@ -5,6 +5,11 @@
     <a href="" class="dnnSectionExpanded">
         <%=LocalizeString("BasicSettings")%></a></h2>
 <fieldset>
+       <div class="dnnFormItem">
+      <dnn:label ID="lblGoogleAPIKey" runat="server" ControlName="txtGoogleAPIKey" />
+      <asp:TextBox ID="txtGoogleAPIKey" runat="server" />
+  </div>
+
     <div class="dnnFormItem">
         <dnn:label ID="lblPageSize" runat="server" ControlName="txtPageSize" />
         <asp:TextBox ID="txtPageSize" runat="server" />

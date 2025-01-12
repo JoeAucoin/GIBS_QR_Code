@@ -59,6 +59,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                     txtPageSize.Text = PageSize.ToString();
                     chkShowLoadProfile.Checked = ShowLoadProfile;
                     chkSaveQRCodeImage.Checked = SaveQRCodeImage;
+                    txtGoogleAPIKey.Text = GoogleAPIKey.ToString();
 
                 }
             }
@@ -80,6 +81,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                 PageSize = Convert.ToInt32(txtPageSize.Text);
                 ShowLoadProfile = Convert.ToBoolean(chkShowLoadProfile.Checked);
                 SaveQRCodeImage =  Convert.ToBoolean(chkSaveQRCodeImage.Checked);
+                GoogleAPIKey = txtGoogleAPIKey.Text.ToString();
             }
             catch (Exception exc) //Module failed to load
             {

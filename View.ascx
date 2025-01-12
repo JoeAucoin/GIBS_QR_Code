@@ -43,22 +43,50 @@
         }
 </script>
 
-<div>
-    <asp:DropDownList ID="ddlQRType" runat="server" OnSelectedIndexChanged="ddlQRType_SelectedIndexChanged" AutoPostBack="true" Width="200px">
-        <asp:ListItem Text="VCard" Value="VCard" Selected="True"></asp:ListItem>
+<div style="margin-bottom: 20px;">Select QR Code Type: 
+    <asp:DropDownList ID="ddlQRType" runat="server" OnSelectedIndexChanged="ddlQRType_SelectedIndexChanged" AutoPostBack="true"  CssClass="form-control">
+      
+        <asp:ListItem Text="VCard" Value="VCard"></asp:ListItem>
+        <asp:ListItem Text="Calendar Event" Value="vEvent"></asp:ListItem>
+          <asp:ListItem Text="Google Business Review or Business Map" Value="GoogleReview"></asp:ListItem>
+        <asp:ListItem Text="WiFi Credentials" Value="WiFi"></asp:ListItem>
+        <asp:ListItem Text="E-Mail Message" Value="Email"></asp:ListItem>
         <asp:ListItem Text="Other" Value="Other"></asp:ListItem>
     </asp:DropDownList>
 
 
 </div>
 
-<div class="text-right">
-<asp:LinkButton ID="LinkButtonLoadProfile" runat="server" OnClick="LinkButtonLoadProfile_Click" Visible="false" CssClass="btn btn-default btn-lg">Load Your Profile</asp:LinkButton></div>
+
+<asp:Panel ID="PanelWiFi" runat="server" Visible="false">
+<div class="dnnForm">
+    <fieldset>
+        <div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtWiFiSSID" Text="WiFi SSID" HelpText="WiFi SSIS" />
+            <asp:TextBox ID="txtWiFiSSID"  runat="server"  />
+        </div>
+
+		<div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtWiFiPassword" Text="WiFi Password" HelpText="WiFiPassword" />
+            <asp:TextBox ID="txtWiFiPassword"  runat="server"  />
+        </div>
+		<div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtWiFiAuthentication" Text="Authentication Mode" HelpText="Authentication Type" />
+            <asp:TextBox ID="txtWiFiAuthentication" Text="WPA"  runat="server"  />
+        </div>
+		
+		
+    </fieldset>
+</div>
+</asp:Panel>
+
 
 <asp:Panel ID="PanelVCard" runat="server">
 
-    <h3>Create a QR Code vCard</h3>
 
+<div style="float:right;">
+<asp:LinkButton ID="LinkButtonLoadProfile" runat="server" OnClick="LinkButtonLoadProfile_Click" Visible="false" CssClass="btn btn-default btn-lg">Load Your Profile</asp:LinkButton></div>
+    <h3>Create Your QR Code Business vCard</h3>
     <div class="dnnForm">
         <fieldset>
             <div class="dnnFormItem">
@@ -117,21 +145,122 @@
 
 </asp:Panel>
 
+<asp:Panel ID="PanelvEvent" runat="server" Visible="false">
+
+ <h3>Create Your QR Code Calendar Event</h3>
+<div class="dnnForm">
+    <fieldset>
+        <div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtEventName" Text="Event Name" HelpText="Event Name" />
+            <asp:TextBox ID="txtEventName"  runat="server"  />
+        </div>
+		        <div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtEventDesc" Text="Description" HelpText="Enter Event Description" />
+            <asp:TextBox ID="txtEventDesc"  runat="server" TextMode="MultiLine" />
+        </div>
+		<div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtEventStartDate" Text="Start" HelpText="Start Date" />
+            <asp:TextBox ID="txtEventStartDate"  runat="server" TextMode="DateTimeLocal" ClientIDMode="Static" />
+        </div>
+		<div class="dnnFormItem">
+            <dnn:Label runat="server" ID="lblEventEndDate" ControlName="txtEventEndDate" Text="End" HelpText="End Date" />
+            <asp:TextBox ID="txtEventEndDate" TextMode="DateTimeLocal" ClientIDMode="Static"  runat="server"  />
+        </div>
+		<div class="dnnFormItem">
+            <dnn:Label runat="server" ID="lblAllDayEvent" ControlName="CheckBoxAllDayEvent" Text="All Day Event" HelpText="All Day Event" />
+            <asp:CheckBox ID="CheckBoxAllDayEvent" runat="server" />
+		</div>
+       <div class="dnnFormItem">
+            <dnn:Label runat="server" ID="lblLocation" ControlName="txtLocation" Text="Event Location" HelpText="Event Location" />
+            <asp:TextBox ID="txtEventLocation"  runat="server"  />
+        </div>		
+        
+    </fieldset>
+</div>
+
+</asp:Panel>
+
+
+<asp:Panel ID="PanelEmail" runat="server" Visible="false">
+
+     <h3>Create Your QR Code Email Link</h3>
+<div class="dnnForm">
+    <fieldset>
+        <div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtEmailAddress" Text="E-Mail Address" HelpText="Recipient E-Mail Address" />
+            <asp:TextBox ID="txtEmailAddress"  runat="server"  />
+        </div>
+		<div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtEmailSubject" Text="Subject" HelpText="Enter Email Subject" />
+            <asp:TextBox ID="txtEmailSubject"  runat="server" />
+        </div>
+		 <div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtEmailMessage" Text="Message" HelpText="Enter E-Mail Message" />
+            <asp:TextBox ID="txtEmailMessage"  runat="server" TextMode="MultiLine" />
+        </div>
+		
+		
+        
+    </fieldset>
+</div>
+
+</asp:Panel>
+
+
+
+<asp:Panel ID="PanelGoogleReview" runat="server" Visible="false">
+    
+     <h3>Create Your Google Business Review or Google Maps QR Code</h3>
+<div class="dnnForm">
+    <fieldset>
+        		 <div class="dnnFormItem">
+            
+        </div>
+        <div class="dnnFormItem">
+            <dnn:Label runat="server" ControlName="txtGRPlaceID" Text="Google Place ID" HelpText="Google Place ID" />
+            <asp:TextBox ID="txtGRPlaceID"  runat="server"  />
+        </div>
+		<div class="dnnFormItem">
+
+
+           
+           <p>Are you looking for the place ID of a specific Place or Business? Use the  
+               <a href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder" target="_blank">Google Place ID Finder</a> to 
+               search for your place/business and get your 
+                <a href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder" target="_blank">Google Place ID</a>. 
+             Return to this page with the Google Place ID.</p>
+  	          </div>
+        <div class="dnnFormItem"><dnn:Label runat="server" ControlName="rblGoogleCodeType" Text="Google Review or Map" HelpText="Google Review or Map" />
+            <asp:RadioButtonList ID="rblGoogleCodeType" runat="server">
+                <asp:ListItem Text="Review Request" Selected="True" Value="Review"></asp:ListItem>
+                <asp:ListItem Text="Business Map" Value="Map"></asp:ListItem>
+            </asp:RadioButtonList>
+            </div>
+		
+
+        
+    </fieldset>
+</div>
+   
+
+</asp:Panel>
 
 
 
 
 <asp:Panel ID="PanelOther" runat="server" Visible="false">
 
+    <h3>Create a Basic QR Code</h3>
+
 <ul class="othernav justify-content-center">
   <li class="othernavli">
-    <a aria-current="page" href="#" onclick="javascript:clearURL();">URL</a>
+    <a aria-current="page" href="#URL" onclick="javascript:clearURL();">URL</a>
   </li>
   <li class="othernavli">
-    <a href="#" onclick="javascript:clearTextBox();">Text</a>
+    <a href="#Text" onclick="javascript:clearTextBox();">Text</a>
   </li>
   <li class="othernavli">
-    <a href="#" onclick="javascript:clearEMAIL();">Email</a>
+    <a href="#Email" onclick="javascript:clearEMAIL();">Email</a>
   </li>
 
 </ul>
@@ -158,10 +287,16 @@
 
 
 
-<div class="nav justify-content-center"><asp:LinkButton ID="LinkButtonSUBMIT" runat="server" OnClick="LinkButtonSUBMIT_Click" CssClass="btn btn-lg btn-default">Create QR Code</asp:LinkButton></div>
+<p class="text-center"><asp:LinkButton ID="LinkButtonSUBMIT" runat="server" OnClick="LinkButtonSUBMIT_Click" CssClass="btn btn-lg btn-info">Create QR Code</asp:LinkButton></p>
 
-<asp:Label ID="LabelEncodedString" runat="server" Text="" Visible="true"></asp:Label>
-<br />
+
+<p class="text-center">
 <asp:Image ID="Image1" runat="server" Visible="false" Width="300px" />
+     <asp:Button ID="cmdDownLoad" runat="server" Text="Download" CssClass="btn"
+      OnClick="cmdDownLoad_Click" Visible="false" />
 
+</p>
+    <div>
+<asp:Label ID="LabelEncodedString" runat="server" CssClass="text-left" Text="" Visible="true"></asp:Label>
+    </div>
 
