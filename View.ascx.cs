@@ -36,6 +36,7 @@ using DotNetNuke.Entities.Portals;
 using DotNetNuke.Services.Installer.Log;
 using DotNetNuke.Services.Scheduling;
 using DotNetNuke.Framework.JavaScriptLibraries;
+using DotNetNuke.Common;
 
 
 
@@ -96,9 +97,15 @@ namespace GIBS.Modules.GIBS_QR_Code
                     }
                         
                     
-                    SetPanel("GoogleReview");
-                    ddlQRType.SelectedValue = "GoogleReview";
+                    SetPanel(DefaultQRType);
+                    ddlQRType.SelectedValue = DefaultQRType;
 
+                    if (UserInfo.IsInRole("Administator"))
+                    {
+                        HyperLinkViewImages.Visible = true;
+                        HyperLinkViewImages.NavigateUrl = Globals.NavigateURL(PortalSettings.ActiveTab.TabID, "Edit", "mid=" + this.ModuleId.ToString());
+                    }
+                    //
 
                 }
             }
@@ -784,7 +791,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                 switch (myPanel)
                 {
                     case "vcard":
-                        
+                        LinkButtonSUBMIT.ValidationGroup = "ValGroupvCard";
                         PanelOther.Visible = false;
                         PanelVCard.Visible = true;
                         PanelvEvent.Visible = false;
@@ -803,6 +810,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                         break;
 
                     case "email":
+                        LinkButtonSUBMIT.ValidationGroup = "ValGroupEmail";
                         LinkButtonLoadProfile.Visible = false;
                         PanelvEvent.Visible = false;
                         PanelOther.Visible = false;
@@ -817,6 +825,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                         break;
 
                     case "wifi":
+                        LinkButtonSUBMIT.ValidationGroup = "ValGroupWiFi";
                         LinkButtonLoadProfile.Visible = false;
                         PanelWiFi.Visible = true;
                         PanelvEvent.Visible = false;
@@ -832,6 +841,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                         break;
 
                     case "googlereview":
+                        LinkButtonSUBMIT.ValidationGroup = "ValGroupGoogleReview";
                         LinkButtonLoadProfile.Visible = false;
                         PanelGoogleReview.Visible = true;
                         PanelvEvent.Visible = false;
@@ -846,6 +856,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                         break;
 
                     case "vevent":
+                        LinkButtonSUBMIT.ValidationGroup = "ValGroupvEvent";
                         LinkButtonLoadProfile.Visible = false;
                         PanelvEvent.Visible = true;
                         PanelOther.Visible = false;
@@ -860,6 +871,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                         break;
 
                     case "other":
+                        LinkButtonSUBMIT.ValidationGroup = "ValGroupOther";
                         LinkButtonLoadProfile.Visible = false;
                         PanelOther.Visible = true;
                         PanelVCard.Visible = false;

@@ -1,6 +1,14 @@
 ﻿<dotnetnuke type="ResourceFile" version="5.0">
   <files>
     <file>
+      <path>JavaScript/</path>
+      <name>GooglePlaces.js</name>
+    </file>
+    <file>
+      <path>images/</path>
+      <name>GIBS.png</name>
+    </file>
+    <file>
       <path>Documentation/</path>
       <name>Documentation.css</name>
     </file>
@@ -27,6 +35,10 @@
     <file>
       <path />
       <name>License.txt</name>
+    </file>
+    <file>
+      <path />
+      <name>List.ascx</name>
     </file>
     <file>
       <path />

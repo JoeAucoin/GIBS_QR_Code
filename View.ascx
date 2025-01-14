@@ -42,11 +42,13 @@
             hideTEXT.style.display = "none";    
         }
 </script>
-
+<div class="w-100 text-right">
+    <asp:HyperLink ID="HyperLinkViewImages" runat="server" Visible="false">View Images</asp:HyperLink>
+   
+</div>
 <div style="margin-bottom: 20px;">Select QR Code Type: 
     <asp:DropDownList ID="ddlQRType" runat="server" OnSelectedIndexChanged="ddlQRType_SelectedIndexChanged" AutoPostBack="true"  CssClass="form-control">
-      
-        <asp:ListItem Text="VCard" Value="VCard"></asp:ListItem>
+        <asp:ListItem Text="VCard - Virtual Business Card" Value="VCard"></asp:ListItem>
         <asp:ListItem Text="Calendar Event" Value="vEvent"></asp:ListItem>
           <asp:ListItem Text="Google Business Review or Business Map" Value="GoogleReview"></asp:ListItem>
         <asp:ListItem Text="WiFi Credentials" Value="WiFi"></asp:ListItem>
@@ -91,11 +93,13 @@
         <fieldset>
             <div class="dnnFormItem">
                 <dnn:label runat="server" ControlName="txtFirstName" Text="First Name" />
-                <asp:TextBox ID="txtFirstName" runat="server" />
+                <asp:TextBox ID="txtFirstName" runat="server" /> <asp:RequiredFieldValidator CssClass="dnnFormMessage dnnFormError" ID="rfv1VCardFirstName" ControlToValidate="txtFirstName" ValidationGroup="ValGroupvCard" runat="server"
+    ErrorMessage="First Name is required." />
             </div>
             <div class="dnnFormItem">
                 <dnn:label runat="server" ControlName="txtLastName" Text="Last Name" />
-                <asp:TextBox ID="txtLastName" runat="server" />
+                <asp:TextBox ID="txtLastName" runat="server" />  <asp:RequiredFieldValidator ID="rfv1VCardLastName" CssClass="dnnFormMessage dnnFormError" ControlToValidate="txtLastName" ValidationGroup="ValGroupvCard" runat="server"
+    ErrorMessage="Last Name is required." />
             </div>	
             <div class="dnnFormItem">
                 <dnn:label runat="server" ControlName="txtCellPhone" Text="Cell Phone" />
@@ -152,27 +156,30 @@
     <fieldset>
         <div class="dnnFormItem">
             <dnn:Label runat="server" ControlName="txtEventName" Text="Event Name" HelpText="Event Name" />
-            <asp:TextBox ID="txtEventName"  runat="server"  />
+            <asp:TextBox ID="txtEventName"  runat="server"  /><asp:RequiredFieldValidator ID="rfv1VCardEventName" ControlToValidate="txtEventName" CssClass="dnnFormMessage dnnFormError" ValidationGroup="ValGroupvEvent" runat="server"
+    ErrorMessage="Event Name is required." />
         </div>
 		        <div class="dnnFormItem">
             <dnn:Label runat="server" ControlName="txtEventDesc" Text="Description" HelpText="Enter Event Description" />
             <asp:TextBox ID="txtEventDesc"  runat="server" TextMode="MultiLine" />
         </div>
 		<div class="dnnFormItem">
-            <dnn:Label runat="server" ControlName="txtEventStartDate" Text="Start" HelpText="Start Date" />
-            <asp:TextBox ID="txtEventStartDate"  runat="server" TextMode="DateTimeLocal" ClientIDMode="Static" />
+            <dnn:Label runat="server" ControlName="txtEventStartDate" Text="Start" HelpText="Start Date and Time" />
+            <asp:TextBox ID="txtEventStartDate"  runat="server" TextMode="DateTimeLocal" ClientIDMode="Static" />   <asp:RequiredFieldValidator ID="rfv1VCardEventStartDate" ControlToValidate="txtEventStartDate" CssClass="dnnFormMessage dnnFormError" ValidationGroup="ValGroupvEvent" runat="server"
+    ErrorMessage="Event Start Date is required." />
         </div>
 		<div class="dnnFormItem">
-            <dnn:Label runat="server" ID="lblEventEndDate" ControlName="txtEventEndDate" Text="End" HelpText="End Date" />
-            <asp:TextBox ID="txtEventEndDate" TextMode="DateTimeLocal" ClientIDMode="Static"  runat="server"  />
+            <dnn:Label runat="server" ID="lblEventEndDate" ControlName="txtEventEndDate" Text="End" HelpText="End Date and Time" />
+            <asp:TextBox ID="txtEventEndDate" TextMode="DateTimeLocal" ClientIDMode="Static"  runat="server"  /> <asp:RequiredFieldValidator ID="rfv1VCardEventEndDate" ControlToValidate="txtEventEndDate" CssClass="dnnFormMessage dnnFormError" ValidationGroup="ValGroupvEvent" runat="server"
+    ErrorMessage="Event End Date is required." />
         </div>
 		<div class="dnnFormItem">
             <dnn:Label runat="server" ID="lblAllDayEvent" ControlName="CheckBoxAllDayEvent" Text="All Day Event" HelpText="All Day Event" />
             <asp:CheckBox ID="CheckBoxAllDayEvent" runat="server" />
 		</div>
        <div class="dnnFormItem">
-            <dnn:Label runat="server" ID="lblLocation" ControlName="txtLocation" Text="Event Location" HelpText="Event Location" />
-            <asp:TextBox ID="txtEventLocation"  runat="server"  />
+            <dnn:Label runat="server" ID="lblLocation" ControlName="txtLocation" Text="Event Location" HelpText="Example: 400 East Restaurant, Harwich, MA" />
+            <asp:TextBox ID="txtEventLocation"  runat="server" ToolTip="Event location"  />
         </div>		
         
     </fieldset>
@@ -188,7 +195,8 @@
     <fieldset>
         <div class="dnnFormItem">
             <dnn:Label runat="server" ControlName="txtEmailAddress" Text="E-Mail Address" HelpText="Recipient E-Mail Address" />
-            <asp:TextBox ID="txtEmailAddress"  runat="server"  />
+            <asp:TextBox ID="txtEmailAddress"  runat="server"  /> <asp:RequiredFieldValidator ID="rfv1VCardEmailAddress" ControlToValidate="txtEmailAddress" CssClass="dnnFormMessage dnnFormError" ValidationGroup="ValGroupEmail" runat="server"
+    ErrorMessage="E-Mail Address is required." />
         </div>
 		<div class="dnnFormItem">
             <dnn:Label runat="server" ControlName="txtEmailSubject" Text="Subject" HelpText="Enter Email Subject" />
@@ -218,7 +226,8 @@
         </div>
         <div class="dnnFormItem">
             <dnn:Label runat="server" ControlName="txtGRPlaceID" Text="Google Place ID" HelpText="Google Place ID" />
-            <asp:TextBox ID="txtGRPlaceID"  runat="server"  />
+            <asp:TextBox ID="txtGRPlaceID"  runat="server"  /> <asp:RequiredFieldValidator ID="rfv1GRPlaceID" ControlToValidate="txtGRPlaceID" CssClass="dnnFormMessage dnnFormError" ValidationGroup="ValGroupGoogleReview" runat="server"
+    ErrorMessage="Google Place ID is required." />
         </div>
 		<div class="dnnFormItem">
 
@@ -252,7 +261,21 @@
 
     <h3>Create a Basic QR Code</h3>
 
-<ul class="othernav justify-content-center">
+    <script type="text/javascript">
+        function validate(oSrc, args) {
+            var v1 = document.getElementById('<%=TextBoxURL.ClientID%>').value;
+            var v2 = document.getElementById('<%=TextBoxTEXT.ClientID%>').value;
+            var v3 = document.getElementById('<%=TextBoxEMAIL.ClientID%>').value;
+            if (v1 == '' && v2 == '' && v3 == '') {
+                args.IsValid = false;
+            }
+            else {
+                args.IsValid = true;
+            }
+        }
+    </script>
+<div style="width: 100%; text-align:center;">
+<ul class="othernav">
   <li class="othernavli">
     <a aria-current="page" href="#URL" onclick="javascript:clearURL();">URL</a>
   </li>
@@ -264,10 +287,17 @@
   </li>
 
 </ul>
+</div>
 
 
 
 <div class="dnnForm">
+
+    <div class="text-center w-50"><asp:CustomValidator id="CustomValidatorOther" runat="server" 
+  ControlToValidate = "TextBoxURL" ValidationGroup="ValGroupOther" ValidateEmptyText="true"
+  ErrorMessage = "Field Required" CssClass="dnnFormMessage dnnFormError"
+  ClientValidationFunction="validate" >
+</asp:CustomValidator></div>
     <fieldset>
         <div class="dnnFormItem" id="divurl">
             <dnn:label runat="server" ControlName="TextBoxURL" Text="URL" HelpText="Enter URL" />

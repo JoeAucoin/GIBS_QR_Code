@@ -15,6 +15,15 @@ namespace GIBS.Modules.GIBS_QR_Code
     {
 
         /// <summary>
+        /// HyperLinkViewImages control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink HyperLinkViewImages;
+
+        /// <summary>
         /// ddlQRType control.
         /// </summary>
         /// <remarks>
@@ -87,6 +96,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         protected global::System.Web.UI.WebControls.TextBox txtFirstName;
 
         /// <summary>
+        /// rfv1VCardFirstName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfv1VCardFirstName;
+
+        /// <summary>
         /// txtLastName control.
         /// </summary>
         /// <remarks>
@@ -94,6 +112,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtLastName;
+
+        /// <summary>
+        /// rfv1VCardLastName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfv1VCardLastName;
 
         /// <summary>
         /// txtCellPhone control.
@@ -204,6 +231,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         protected global::System.Web.UI.WebControls.TextBox txtEventName;
 
         /// <summary>
+        /// rfv1VCardEventName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfv1VCardEventName;
+
+        /// <summary>
         /// txtEventDesc control.
         /// </summary>
         /// <remarks>
@@ -222,6 +258,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         protected global::System.Web.UI.WebControls.TextBox txtEventStartDate;
 
         /// <summary>
+        /// rfv1VCardEventStartDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfv1VCardEventStartDate;
+
+        /// <summary>
         /// lblEventEndDate control.
         /// </summary>
         /// <remarks>
@@ -238,6 +283,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtEventEndDate;
+
+        /// <summary>
+        /// rfv1VCardEventEndDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfv1VCardEventEndDate;
 
         /// <summary>
         /// lblAllDayEvent control.
@@ -294,6 +348,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         protected global::System.Web.UI.WebControls.TextBox txtEmailAddress;
 
         /// <summary>
+        /// rfv1VCardEmailAddress control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfv1VCardEmailAddress;
+
+        /// <summary>
         /// txtEmailSubject control.
         /// </summary>
         /// <remarks>
@@ -330,6 +393,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         protected global::System.Web.UI.WebControls.TextBox txtGRPlaceID;
 
         /// <summary>
+        /// rfv1GRPlaceID control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfv1GRPlaceID;
+
+        /// <summary>
         /// rblGoogleCodeType control.
         /// </summary>
         /// <remarks>
@@ -346,6 +418,15 @@ namespace GIBS.Modules.GIBS_QR_Code
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Panel PanelOther;
+
+        /// <summary>
+        /// CustomValidatorOther control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CustomValidator CustomValidatorOther;
 
         /// <summary>
         /// TextBoxURL control.

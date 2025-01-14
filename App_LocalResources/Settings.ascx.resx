@@ -120,6 +120,9 @@
   <data name="ControlTitle_settings.Text" xml:space="preserve">
     <value>QR Code Settings</value>
   </data>
+  <data name="lblGoogleAPIKey.Text" xml:space="preserve">
+    <value>Google API Key</value>
+  </data>
   <data name="lblPageSize.Text" xml:space="preserve">
     <value>Page Size</value>
   </data>

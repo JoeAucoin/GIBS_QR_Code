@@ -51,6 +51,24 @@ namespace GIBS.Modules.GIBS_QR_Code
         protected global::System.Web.UI.WebControls.TextBox txtPageSize;
 
         /// <summary>
+        /// lblDefaultQRType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DotNetNuke.UI.UserControls.LabelControl lblDefaultQRType;
+
+        /// <summary>
+        /// ddlQRType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlQRType;
+
+        /// <summary>
         /// lblShowLoadProfile control.
         /// </summary>
         /// <remarks>
