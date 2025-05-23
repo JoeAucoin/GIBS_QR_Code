@@ -103,7 +103,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                     if (UserInfo.IsInRole("Administator"))
                     {
                         HyperLinkViewImages.Visible = true;
-                        HyperLinkViewImages.NavigateUrl = Globals.NavigateURL(PortalSettings.ActiveTab.TabID, "Edit", "mid=" + this.ModuleId.ToString());
+                        HyperLinkViewImages.NavigateUrl = Globals.NavigateURL(PortalSettings.ActiveTab.TabID, "List", "mid=" + this.ModuleId.ToString());
                     }
                     //
 
