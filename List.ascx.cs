@@ -48,7 +48,7 @@ namespace GIBS.Modules.GIBS_QR_Code
             //  table.Columns.Add(myPath + "<br />" + myFilePath);
             //   table.Columns.Add("Files in: " + myFilePath);
             table.Columns.Add("Files");
-            table.Columns.Add("CreatedOn");
+            table.Columns.Add("CreatedOn", typeof(DateTime));
 
             for (int i = 0; i < files.Length; i++)
             {
@@ -64,7 +64,7 @@ namespace GIBS.Modules.GIBS_QR_Code
             //     dataGridView1.DataSource = table;
             //     dataGridView1.DataBind();
             table.DefaultView.Sort = "CreatedOn DESC";
-            GridView1.DataSource = table;
+            GridView1.DataSource = table.DefaultView;
             GridView1.DataBind();
 
         }

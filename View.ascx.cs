@@ -10,7 +10,9 @@
 ' 
 */
 
+using DotNetNuke.Abstractions;
 using DotNetNuke.Entities.Modules;
+using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.Entities.Modules.Actions;
 using DotNetNuke.Security;
 using DotNetNuke.Services.Exceptions;
@@ -28,14 +30,10 @@ using System.Windows.Shapes;
 using System.Collections;
 using System.Web.UI.WebControls;
 using System.Web;
-using DotNetNuke.Common.Utilities;
-using DotNetNuke.Security.Permissions;
-using DotNetNuke.Security.Roles;
+
 using DotNetNuke.Services.FileSystem;
 using DotNetNuke.Entities.Portals;
-using DotNetNuke.Services.Installer.Log;
-using DotNetNuke.Services.Scheduling;
-using DotNetNuke.Framework.JavaScriptLibraries;
+
 using DotNetNuke.Common;
 
 
@@ -57,25 +55,17 @@ namespace GIBS.Modules.GIBS_QR_Code
     /// -----------------------------------------------------------------------------
     public partial class View : GIBS_QR_CodeModuleSettingsBase, IActionable
     {
+        private readonly INavigationManager _navigationManager;
 
-        static string _GoogleAPIKey;
-        static string _QRCodeFilename = "";
+        public string _GoogleAPIKey;
+        public string _QRCodeFilename = "";
 
 
-        protected override void OnInit(EventArgs e)
+        public View()
         {
-            base.OnInit(e);
-
-            //JavaScript.RequestRegistration(CommonJs.jQuery);
-            //JavaScript.RequestRegistration(CommonJs.jQueryUI);
-            //JavaScript.RequestRegistration(CommonJs.DnnPlugins);
-
-     //      Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "GoogleMaps", (this.TemplateSourceDirectory + "/JavaScript/GooglePlaces.js?1=10"));
-            //Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "Watermark", (this.TemplateSourceDirectory + "/JavaScript/jquery.watermarkinput.js"));
-            //Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "SigWeb", (this.TemplateSourceDirectory + "/JavaScript/SigWebTablet.js"));
-            //Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "Dymo", (this.TemplateSourceDirectory + "/JavaScript/dymo.connect.framework.js?1=1"));
-            //Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "PrintLabel", (this.TemplateSourceDirectory + "/JavaScript/PrintLabel.js?1=9"));
-            //   Page.ClientScript.RegisterClientScriptInclude(this.GetType(), "Style", ("https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/redmond/jquery-ui.css"));
+            
+            _navigationManager = DependencyProvider.GetRequiredService<INavigationManager>();
+            
 
         }
 
@@ -87,7 +77,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                 if (!IsPostBack)
                 {
                     //LabelEncodedString.Text = rblGoogleCodeType.SelectedItem.ToString();
-
+                    _GoogleAPIKey  = GoogleAPIKey.ToString();
 
                     bool DoesFolderExists = System.IO.Directory.Exists(PortalSettings.HomeDirectoryMapPath + "QRCode");
 
@@ -103,7 +93,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                     if (UserInfo.IsInRole("Administator"))
                     {
                         HyperLinkViewImages.Visible = true;
-                        HyperLinkViewImages.NavigateUrl = Globals.NavigateURL(PortalSettings.ActiveTab.TabID, "List", "mid=" + this.ModuleId.ToString());
+                        HyperLinkViewImages.NavigateUrl = _navigationManager.NavigateURL(PortalSettings.ActiveTab.TabID, "List", "mid=" + this.ModuleId.ToString());
                     }
                     //
 
@@ -195,10 +185,9 @@ namespace GIBS.Modules.GIBS_QR_Code
 
         protected void cmdDownLoad_Click(object sender, EventArgs e)
         {
-            // Button myBut = sender as Button;
-            //  GridViewRow gRow = myBut.NamingContainer as GridViewRow;
-
-            string strFileOnly = _QRCodeFilename.ToString();
+           
+            
+            string strFileOnly = HiddenFieldFileName.Value.ToString();
             string strFile = Server.MapPath(@"~/Portals/" + this.PortalId + "/QRCode/" + strFileOnly.ToString());
           //  strFile = Server.MapPath(@"~/UpLoadFiles/" + strFileOnly);
 
@@ -318,7 +307,7 @@ namespace GIBS.Modules.GIBS_QR_Code
 
                 string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "WiFi_" + txtWiFiSSID.Text.ToString().Replace(" ", "") + ".png";
                 _QRCodeFilename = "WiFi_" + txtWiFiSSID.Text.ToString().Replace(" ", "") + ".png";
-
+                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
 
                 using (Bitmap bitMap = qrCode.GetGraphic(20))
                 {
@@ -397,7 +386,7 @@ namespace GIBS.Modules.GIBS_QR_Code
 
                 // used for download link
                 _QRCodeFilename = "GoogleReview_" + txtGRPlaceID.Text.Substring(0, 10) + ".png";
-
+                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
 
 
                 using (Bitmap bitMap = qrCode.GetGraphic(20))
@@ -474,7 +463,7 @@ namespace GIBS.Modules.GIBS_QR_Code
 
                 // used for download link
                 _QRCodeFilename = "vCard_" + txtLastName.Text.ToString().Replace(" ", "") + "_" + txtFirstName.Text.ToString().Replace(" ", "") + ".png"; ;
-
+                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
 
                 using (Bitmap bitMap = qrCode.GetGraphic(20))
                 {
@@ -541,7 +530,7 @@ namespace GIBS.Modules.GIBS_QR_Code
 
                 string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Email_" + txtEmailAddress.Text.ToString().Replace("@", "_AT_") + ".png";
                 _QRCodeFilename = "Email_" + txtEventName.Text.ToString().Replace("@", "_AT_") + ".png";
-
+                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
 
                 using (Bitmap bitMap = qrCode.GetGraphic(20))
                 {
@@ -615,7 +604,7 @@ namespace GIBS.Modules.GIBS_QR_Code
 
                 string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Event_" + txtEventName.Text.ToString().Replace(" ", "") + ".png";
                 _QRCodeFilename = "Event_" + txtEventName.Text.ToString().Replace(" ", "") +  ".png";
-
+                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
 
                 using (Bitmap bitMap = qrCode.GetGraphic(20))
                 {
@@ -689,7 +678,7 @@ namespace GIBS.Modules.GIBS_QR_Code
 
                 string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Other_" + myTimeStamp.ToString() + ".png";
                 _QRCodeFilename = "Other_" + myTimeStamp.ToString() + ".png";
-
+                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
 
                 using (Bitmap bitMap = qrCode.GetGraphic(20))
                 {

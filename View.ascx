@@ -330,3 +330,4 @@
 <asp:Label ID="LabelEncodedString" runat="server" CssClass="text-left" Text="" Visible="true"></asp:Label>
     </div>
 
+<asp:HiddenField ID="HiddenFieldFileName" runat="server" />
