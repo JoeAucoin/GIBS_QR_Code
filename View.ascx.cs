@@ -1,16 +1,4 @@
-﻿/*
-' Copyright (c) 2024  GIBS.com
-'  All rights reserved.
-' 
-' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-' TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-' THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-' CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-' DEALINGS IN THE SOFTWARE.
-' 
-*/
-
-using DotNetNuke.Abstractions;
+﻿using DotNetNuke.Abstractions;
 using DotNetNuke.Entities.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.Entities.Modules.Actions;
@@ -40,19 +28,8 @@ using DotNetNuke.Common;
 
 namespace GIBS.Modules.GIBS_QR_Code
 {
-    /// -----------------------------------------------------------------------------
-    /// <summary>
-    /// The View class displays the content
-    /// 
-    /// Typically your view control would be used to display content or functionality in your module.
-    /// 
-    /// View may be the only control you have in your project depending on the complexity of your module
-    /// 
-    /// Because the control inherits from GIBS_QR_CodeModuleBase you have access to any custom properties
-    /// defined there, as well as properties from DNN such as PortalId, ModuleId, TabId, UserId and many more.
-    /// 
-    /// </summary>   GIBS_QR_CodeModuleBase 
-    /// -----------------------------------------------------------------------------
+    
+
     public partial class View : GIBS_QR_CodeModuleSettingsBase, IActionable
     {
         private readonly INavigationManager _navigationManager;
@@ -63,9 +40,9 @@ namespace GIBS.Modules.GIBS_QR_Code
 
         public View()
         {
-            
+
             _navigationManager = DependencyProvider.GetRequiredService<INavigationManager>();
-            
+
 
         }
 
@@ -77,7 +54,7 @@ namespace GIBS.Modules.GIBS_QR_Code
                 if (!IsPostBack)
                 {
                     //LabelEncodedString.Text = rblGoogleCodeType.SelectedItem.ToString();
-                    _GoogleAPIKey  = GoogleAPIKey.ToString();
+                    _GoogleAPIKey = GoogleAPIKey.ToString();
 
                     bool DoesFolderExists = System.IO.Directory.Exists(PortalSettings.HomeDirectoryMapPath + "QRCode");
 
@@ -85,8 +62,8 @@ namespace GIBS.Modules.GIBS_QR_Code
                     {
                         CreateFolder("QRCode");
                     }
-                        
-                    
+
+
                     SetPanel(DefaultQRType);
                     ddlQRType.SelectedValue = DefaultQRType;
 
@@ -185,11 +162,11 @@ namespace GIBS.Modules.GIBS_QR_Code
 
         protected void cmdDownLoad_Click(object sender, EventArgs e)
         {
-           
-            
+
+
             string strFileOnly = HiddenFieldFileName.Value.ToString();
             string strFile = Server.MapPath(@"~/Portals/" + this.PortalId + "/QRCode/" + strFileOnly.ToString());
-          //  strFile = Server.MapPath(@"~/UpLoadFiles/" + strFileOnly);
+            //  strFile = Server.MapPath(@"~/UpLoadFiles/" + strFileOnly);
 
             string sMineType = MimeMapping.GetMimeMapping(strFileOnly);
             Response.ContentType = sMineType;
@@ -221,19 +198,11 @@ namespace GIBS.Modules.GIBS_QR_Code
                 if (ddlQRType.SelectedValue == "Other")
                 {
                     SaveOther();
-                    //if (TextBoxURL.Text.Length > 0) 
-                    //{ 
-                    
-                    //}
-                    //else
-                    //{
-                        
-                    //}
-                    
+                  
                 }
                 else if (ddlQRType.SelectedValue == "vEvent")
                 {
-                   
+
                     SaveVEvent();
                 }
                 else if (ddlQRType.SelectedValue == "Email")
@@ -265,7 +234,7 @@ namespace GIBS.Modules.GIBS_QR_Code
 
         }
 
-        
+
         public static (string HouseNumber, string StreetName) SplitAddress(string address)
         {
             if (string.IsNullOrEmpty(address))
@@ -287,66 +256,51 @@ namespace GIBS.Modules.GIBS_QR_Code
             }
         }
 
+        private void GenerateAndDisplayQRCode(string payload, string fileName)
+        {
+            _QRCodeFilename = fileName;
+            HiddenFieldFileName.Value = _QRCodeFilename;
+            string qrCodeImagePath = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + _QRCodeFilename;
+
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new QRCode(qrCodeData);
+
+            using (Bitmap bitMap = qrCode.GetGraphic(20))
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    bitMap.Save(ms, ImageFormat.Png);
+                    byte[] byteImage = ms.ToArray();
+
+                    Image1.Visible = true;
+                    cmdDownLoad.Visible = true;
+                    Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+
+                    if (SaveQRCodeImage)
+                    {
+                        if (File.Exists(qrCodeImagePath))
+                        {
+                            File.Delete(qrCodeImagePath);
+                        }
+                        File.WriteAllBytes(qrCodeImagePath, byteImage);
+                    }
+                }
+            }
+
+            LabelEncodedString.Text = payload;
+        }
+
 
         public void SaveWiFi()
         {
             try
             {
-                
-                WiFi generator = new WiFi(txtWiFiSSID.Text.ToString(), txtWiFiPassword.Text.ToString(),
-                    WiFi.Authentication.WPA,false,false);
 
+                WiFi generator = new WiFi(txtWiFiSSID.Text, txtWiFiPassword.Text, WiFi.Authentication.WPA, false, false);
                 string payload = generator.ToString();
-
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
-                QRCode qrCode = new QRCode(qrCodeData);
-
-                Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
-                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "WiFi_" + txtWiFiSSID.Text.ToString().Replace(" ", "") + ".png";
-                _QRCodeFilename = "WiFi_" + txtWiFiSSID.Text.ToString().Replace(" ", "") + ".png";
-                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
-
-                using (Bitmap bitMap = qrCode.GetGraphic(20))
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        Image1.Visible = true;
-                        cmdDownLoad.Visible = true;
-                        bitMap.Save(ms, ImageFormat.Png);
-                        //bitMap.Save(s, ImageFormat.Png);
-                        byte[] byteImage = ms.ToArray();
-                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
-
-                        if (SaveQRCodeImage == true)
-                        {
-
-                            if (File.Exists(_QRCodeImage))
-                            {
-                                File.Delete(_QRCodeImage);
-                            }
-
-                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
-
-                            ms.WriteTo(file);
-                            //img.Dispose();
-
-                            file.Close();
-                            file.Dispose();
-                        }
-                        ms.Close();
-                        ms.Dispose();
-
-                    }
-
-
-
-                }
-
-                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
-                LabelEncodedString.Text = payload.ToString();
+                string fileName = "WiFi_" + txtWiFiSSID.Text.Replace(" ", "") + ".png";
+                GenerateAndDisplayQRCode(payload, fileName);
 
             }
             catch (Exception ex)
@@ -359,74 +313,20 @@ namespace GIBS.Modules.GIBS_QR_Code
         {
             try
             {
-                string googleReviewAddress = "";
+                string googleReviewAddress;
 
-                if(rblGoogleCodeType.SelectedValue.ToString() == "Review")
+                if (rblGoogleCodeType.SelectedValue == "Review")
                 {
-                    googleReviewAddress = "https://search.google.com/local/writereview?placeid=" + txtGRPlaceID.Text.ToString().Trim();
+                    googleReviewAddress = "https://search.google.com/local/writereview?placeid=" + txtGRPlaceID.Text.Trim();
                 }
                 else
                 {
-                    googleReviewAddress = "https://www.google.com/maps/search/?api=1&query=Google&query_place_id=" + txtGRPlaceID.Text.ToString().Trim();
+                    googleReviewAddress = "https://www.google.com/maps/search/?api=1&query=Google&query_place_id=" + txtGRPlaceID.Text.Trim();
                 }
                 Url generator = new Url(googleReviewAddress);
-
                 string payload = generator.ToString();
-                payload = payload.Replace("ADR;TYPE=HOME", "ADR;TYPE=WORK");
-                //  payload = payload.Replace("TEL;TYPE=HOME", "TEL;TYPE=WORK");
-                //  payload = payload.Replace("EMAIL:", "EMAIL;TYPE=INTERNET;TYPE=WORK:");
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
-                QRCode qrCode = new QRCode(qrCodeData);
-
-                Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
-                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "GoogleReview_" + txtGRPlaceID.Text.Substring(0, 10) + ".png";
-
-                // used for download link
-                _QRCodeFilename = "GoogleReview_" + txtGRPlaceID.Text.Substring(0, 10) + ".png";
-                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
-
-
-                using (Bitmap bitMap = qrCode.GetGraphic(20))
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        Image1.Visible = true;
-                        cmdDownLoad.Visible = true;
-                        bitMap.Save(ms, ImageFormat.Png);
-                        //bitMap.Save(s, ImageFormat.Png);
-                        byte[] byteImage = ms.ToArray();
-                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
-
-                        if (SaveQRCodeImage == true)
-                        {
-
-                            if (File.Exists(_QRCodeImage))
-                            {
-                                File.Delete(_QRCodeImage);
-                            }
-
-                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
-
-                            ms.WriteTo(file);
-                            //img.Dispose();
-
-                            file.Close();
-                            file.Dispose();
-                        }
-                        ms.Close();
-                        ms.Dispose();
-
-                    }
-
-
-
-                }
-
-                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
-                LabelEncodedString.Text = payload.ToString();
+                string fileName = "GoogleReview_" + txtGRPlaceID.Text.Substring(0, 10) + ".png";
+                GenerateAndDisplayQRCode(payload, fileName);
 
             }
             catch (Exception ex)
@@ -439,71 +339,20 @@ namespace GIBS.Modules.GIBS_QR_Code
         {
             try
             {
-                string address = txtStreet.Text.ToString();
+                string address = txtStreet.Text;
                 (string houseNumber, string streetName) = SplitAddress(address);
-                
-                ContactData generator = new ContactData(ContactData.ContactOutputType.VCard3, txtFirstName.Text.ToString(), txtLastName.Text.ToString(),
-                    "", "", txtCellPhone.Text.ToString(), txtWorkPhone.Text.ToString(), txtEmail.Text.ToString(), null,txtWebsite.Text.ToString(),
-                   streetName.ToString(), houseNumber.ToString(), txtCity.Text.ToString(), txtZip.Text.ToString(), null, null, 
-                    txtState.Text.ToString(),ContactData.AddressOrder.Reversed,
-                    txtBusiness.Text.ToString(), txtTitle.Text.ToString());
-                
+
+                ContactData generator = new ContactData(ContactData.ContactOutputType.VCard3, txtFirstName.Text, txtLastName.Text,
+                    "", "", txtCellPhone.Text, txtWorkPhone.Text, txtEmail.Text, null, txtWebsite.Text,
+                   streetName, houseNumber, txtCity.Text, txtZip.Text, null, null,
+                    txtState.Text, ContactData.AddressOrder.Reversed,
+                    txtBusiness.Text, txtTitle.Text);
+
                 string payload = generator.ToString();
                 payload = payload.Replace("ADR;TYPE=HOME", "ADR;TYPE=WORK");
-              //  payload = payload.Replace("TEL;TYPE=HOME", "TEL;TYPE=WORK");
-              //  payload = payload.Replace("EMAIL:", "EMAIL;TYPE=INTERNET;TYPE=WORK:");
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-               
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
-                QRCode qrCode = new QRCode(qrCodeData);
+                string fileName = "vCard_" + txtLastName.Text.Replace(" ", "") + "_" + txtFirstName.Text.Replace(" ", "") + ".png";
+                GenerateAndDisplayQRCode(payload, fileName);
 
-                Bitmap qrCodeImage = qrCode.GetGraphic(20);
-                
-                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\vCard_" + txtLastName.Text.ToString().Replace(" ", "") + "_" + txtFirstName.Text.ToString().Replace(" ", "") + ".png";
-
-                // used for download link
-                _QRCodeFilename = "vCard_" + txtLastName.Text.ToString().Replace(" ", "") + "_" + txtFirstName.Text.ToString().Replace(" ", "") + ".png"; ;
-                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
-
-                using (Bitmap bitMap = qrCode.GetGraphic(20))
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        Image1.Visible = true;
-                        cmdDownLoad.Visible = true;
-                        bitMap.Save(ms, ImageFormat.Png);
-                        //bitMap.Save(s, ImageFormat.Png);
-                        byte[] byteImage = ms.ToArray();
-                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
-                         
-                        if (SaveQRCodeImage == true)
-                        {
-
-                            if (File.Exists(_QRCodeImage))
-                            {
-                                File.Delete(_QRCodeImage);
-                            }
-
-                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
-
-                            ms.WriteTo(file);
-                            //img.Dispose();
-                            
-                            file.Close();
-                            file.Dispose();
-                        }
-                        ms.Close();
-                        ms.Dispose();
-
-                    }
-
-                   
-
-                }
-
-                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
-                LabelEncodedString.Text = payload.ToString();
-               
             }
             catch (Exception ex)
             {
@@ -515,61 +364,11 @@ namespace GIBS.Modules.GIBS_QR_Code
         {
             try
             {
-               
-                Mail generator = new Mail(txtEmailAddress.Text.ToString(), txtEmailSubject.Text.ToString(),
-                    txtEmailMessage.Text.ToString());
 
+                Mail generator = new Mail(txtEmailAddress.Text, txtEmailSubject.Text, txtEmailMessage.Text);
                 string payload = generator.ToString();
-
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
-                QRCode qrCode = new QRCode(qrCodeData);
-
-                Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
-                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Email_" + txtEmailAddress.Text.ToString().Replace("@", "_AT_") + ".png";
-                _QRCodeFilename = "Email_" + txtEventName.Text.ToString().Replace("@", "_AT_") + ".png";
-                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
-
-                using (Bitmap bitMap = qrCode.GetGraphic(20))
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        Image1.Visible = true;
-                        cmdDownLoad.Visible = true;
-                        bitMap.Save(ms, ImageFormat.Png);
-                        //bitMap.Save(s, ImageFormat.Png);
-                        byte[] byteImage = ms.ToArray();
-                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
-
-                        if (SaveQRCodeImage == true)
-                        {
-
-                            if (File.Exists(_QRCodeImage))
-                            {
-                                File.Delete(_QRCodeImage);
-                            }
-
-                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
-
-                            ms.WriteTo(file);
-                            //img.Dispose();
-
-                            file.Close();
-                            file.Dispose();
-                        }
-                        ms.Close();
-                        ms.Dispose();
-
-                    }
-
-
-
-                }
-
-                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
-                LabelEncodedString.Text = payload.ToString();
+                string fileName = "Email_" + txtEmailAddress.Text.Replace("@", "_AT_") + ".png";
+                GenerateAndDisplayQRCode(payload, fileName);
 
             }
             catch (Exception ex)
@@ -583,67 +382,17 @@ namespace GIBS.Modules.GIBS_QR_Code
         {
             try
             {
-                DateTime starttime = DateTime.Parse(txtEventStartDate.Text.ToString());
-                DateTime endtime = DateTime.Parse(txtEventEndDate.Text.ToString());
-                bool alldayEvent = Convert.ToBoolean(CheckBoxAllDayEvent.Checked);
-               // string location = txtLatitude.Text.ToString() + "," + txtLongitude.Text.ToString();
-                //  location = "400 East Restaurant, Harwich, MA";
-                string location =txtEventLocation.Text.ToString();
+                DateTime starttime = DateTime.Parse(txtEventStartDate.Text);
+                DateTime endtime = DateTime.Parse(txtEventEndDate.Text);
+                bool alldayEvent = CheckBoxAllDayEvent.Checked;
+                string location = txtEventLocation.Text;
 
-                CalendarEvent generator = new CalendarEvent(txtEventName.Text.ToString(), txtEventDesc.Text.ToString(), 
-                    location, starttime, endtime, alldayEvent,CalendarEvent.EventEncoding.Universal);
+                CalendarEvent generator = new CalendarEvent(txtEventName.Text, txtEventDesc.Text,
+                    location, starttime, endtime, alldayEvent, CalendarEvent.EventEncoding.Universal);
 
                 string payload = generator.ToString();
-               
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
-                QRCode qrCode = new QRCode(qrCodeData);
-
-                Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
-                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Event_" + txtEventName.Text.ToString().Replace(" ", "") + ".png";
-                _QRCodeFilename = "Event_" + txtEventName.Text.ToString().Replace(" ", "") +  ".png";
-                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
-
-                using (Bitmap bitMap = qrCode.GetGraphic(20))
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        Image1.Visible = true;
-                        cmdDownLoad.Visible = true;
-                        bitMap.Save(ms, ImageFormat.Png);
-                        //bitMap.Save(s, ImageFormat.Png);
-                        byte[] byteImage = ms.ToArray();
-                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
-
-                        if (SaveQRCodeImage == true)
-                        {
-
-                            if (File.Exists(_QRCodeImage))
-                            {
-                                File.Delete(_QRCodeImage);
-                            }
-
-                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
-
-                            ms.WriteTo(file);
-                            //img.Dispose();
-
-                            file.Close();
-                            file.Dispose();
-                        }
-                        ms.Close();
-                        ms.Dispose();
-
-                    }
-
-
-
-                }
-
-                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
-                LabelEncodedString.Text = payload.ToString();
+                string fileName = "Event_" + txtEventName.Text.Replace(" ", "") + ".png";
+                GenerateAndDisplayQRCode(payload, fileName);
 
             }
             catch (Exception ex)
@@ -657,66 +406,19 @@ namespace GIBS.Modules.GIBS_QR_Code
         {
             try
             {
-                string email = TextBoxEMAIL.Text.ToString();
-
+                string email = TextBoxEMAIL.Text;
                 if (email.Length > 0)
                 {
                     email = "mailto:" + email;
                 }
 
-
-
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(TextBoxURL.Text.ToString() + email.ToString() + TextBoxTEXT.Text.ToString(), QRCodeGenerator.ECCLevel.Q);
-
-                QRCode qrCode = new QRCode(qrCodeData);
-
-                Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
+                string payload = TextBoxURL.Text + email + TextBoxTEXT.Text;
                 string format1 = "Mddyyyyhhmmsstt";
-                var myTimeStamp = String.Format("{0}", DateTime.Now.ToString(format1));
+                var myTimeStamp = DateTime.Now.ToString(format1);
+                string fileName = "Other_" + myTimeStamp + ".png";
+                GenerateAndDisplayQRCode(payload, fileName);
 
-                string _QRCodeImage = PortalSettings.HomeDirectoryMapPath + "QRCode\\" + "Other_" + myTimeStamp.ToString() + ".png";
-                _QRCodeFilename = "Other_" + myTimeStamp.ToString() + ".png";
-                HiddenFieldFileName.Value = _QRCodeFilename.ToString();
-
-                using (Bitmap bitMap = qrCode.GetGraphic(20))
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        Image1.Visible = true;
-                        cmdDownLoad.Visible = true;
-                        bitMap.Save(ms, ImageFormat.Png);
-                        byte[] byteImage = ms.ToArray();
-                        Image1.ImageUrl = "data:image/png;base64," + Convert.ToBase64String(byteImage);
-
-                        if (SaveQRCodeImage == true)
-                        {
-
-                            if (File.Exists(_QRCodeImage))
-                            {
-                                File.Delete(_QRCodeImage);
-                            }
-
-                            FileStream file = new FileStream(_QRCodeImage.ToString(), FileMode.Create, FileAccess.Write);
-
-                            ms.WriteTo(file);
-                            //img.Dispose();
-
-                            file.Close();
-                            file.Dispose();
-                        }
-                        ms.Close();
-                        ms.Dispose();
-
-                    }
-                }
-
-                string myEncodedString = Base64Encode(TextBoxTEXT.Text.ToString());
-
-                LabelEncodedString.Text = TextBoxURL.Text.ToString() + email.ToString() + TextBoxTEXT.Text.Replace(Environment.NewLine, "<br />").ToString();
-
-
+                LabelEncodedString.Text = TextBoxURL.Text + email + TextBoxTEXT.Text.Replace(Environment.NewLine, "<br />");
 
             }
             catch (Exception ex)
@@ -746,7 +448,7 @@ namespace GIBS.Modules.GIBS_QR_Code
             DotNetNuke.Entities.Users.UserInfo userInfo = DotNetNuke.Entities.Users.UserController.GetUserById(PortalId, UserId);
             if (userInfo != null)
                 UserDisplayName = userInfo.DisplayName;
-            
+
             return UserDisplayName;
         }
 
@@ -764,11 +466,11 @@ namespace GIBS.Modules.GIBS_QR_Code
             return "https://maps.googleapis.com/maps/api/js?key=" + _GoogleAPIKey.ToString() + "&libraries=places&v=weekly";
         }
 
-        
+
         protected void ddlQRType_SelectedIndexChanged(object sender, EventArgs e)
         {
             SetPanel(ddlQRType.SelectedValue.ToString());
-            
+
         }
 
         public void SetPanel(string whatPanel)
